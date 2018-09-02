@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.westos.ssm.dao.SubjectDao">
+    <select id="listAllSubject" resultType="com.westos.ssm.bean.Subject">
+        select * from subject
+    </select>
+    <insert id="saveSubject" parameterType="com.westos.ssm.bean.Subject">
+      <selectKey keyProperty="id" resultType="java.lang.Integer"  order="BEFORE">
+          select ifnull(max(id),0)+1 from subject
+      </selectKey>
+      insert into subject(id,name)
+      VALUES (
+          #{id},
+          #{name}
+      )
+    </insert>
+    <update id="updateSubject" parameterType="com.westos.ssm.bean.Subject">
+      update subject
+      <set>
+          name=#{name}
+
+      </set>
+        <where>
+            id=#{id}
+        </where>
+    </update>
+    <delete id="removeSubject" parameterType="com.westos.ssm.bean.Subject">
+        delete from subject where id=#{id}
+    </delete>
+</mapper>

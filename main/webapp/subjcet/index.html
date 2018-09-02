@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE-edge">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>bootstrap01</title>
+
+    <link rel="stylesheet" type="text/css" href="../bootstrap-3.3.7-dist/css/bootstrap.css" />
+    <script src="../js/vue.js"></script>
+    <script src="../js/axios.min.js"></script>
+    <script src="../js/jquery.min.js"></script>
+    <script src="../bootstrap-3.3.7-dist/js/bootstrap.min.js"></script>
+</head>
+<body>
+<div id="app" class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <div>
+                <form class="form-inline">
+                    <label class="control-label">请输入类别名称</label>
+                    <input type="text" class="form-control" v-model="subject.name"/>
+
+                    <button class="btn btn-primary" type="button" v-on:click="add">添加</button>
+                    <button class="btn btn-primary" type="button" v-on:click="update">修改</button>
+                    <button class="btn btn-primary" type="button" v-on:click="refresh">刷新</button>
+                </form>
+            </div>
+            <!--展示新闻类别的表格-->
+            <table class="table">
+                <tr>
+                    <th>
+                        序号
+                    </th>
+                    <th>
+                        类别名称
+                    </th>
+                    <th>
+                        操作
+                    </th>
+                </tr>
+                <tr v-for="(item,index) in subjectlist">
+                    <td>
+                        {{item.id}}
+                    </td>
+                    <td>{{item.name}}</td>
+                    <td>
+                        <button class="btn btn-info btn-sm" type="button" v-on:click="edit(item)">修改</button>
+                        <button class="btn btn-danger btn-sm" type="button" v-on:click="remove(index,item)">删除</button>
+
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</div>
+<script>
+    var vue=new Vue({
+        el:'#app',
+        data:{
+            msg:'hello',
+            subjectlist:[
+                {
+                    id:1,
+                    name:'政治'
+                },
+                {
+                    id:2,
+                    name:'娱乐'
+                },
+            ],
+            subject:{
+                id:'',
+                name:''
+            },
+            addurl:'/subject/addsubject.do',//添加数据的url
+            editurl:'/subject/updatesubject.do',//修改数据的url
+            delurl:'/subject/removesubject.do',//删除数据的url
+            listurl:'/subject/listsubject.do'//显示所有数据的url
+        },
+        methods:{
+            add:function(){
+                console.log(this.subject)
+                //使用ajax请求保存数据
+                axios.post(this.addurl,this.subject).then(function (result) {
+                    vue.subject=result.data;
+                    vue.subjectlist.push(result.data);
+                }).catch(function(err){
+                    console.log(err)
+                    alert('添加数据出错')
+                });
+            },
+            refresh:function(){
+                axios.get(this.listurl).then(function(result){
+                    //将结果给数组
+                    vue.subjectlist=[];
+                    for(var i=0;i<result.data.length;i++){
+                        //注意vue下的数组操作一定使用push等
+                        vue.subjectlist.push(result.data[i]);
+                    }
+                }).catch(function(err){
+                    console.log(err)
+                    alert('加载数据出错')
+                });
+            },
+            update:function(item){
+                //修改保存
+                axios.post(this.editurl,this.subject).then(function (result) {
+                    item=result.data;
+
+                }).catch(function(err){
+                    console.log(err)
+                    alert('修改数据出错')
+                });
+            },
+            remove:function(index,item){
+                //删除数据
+                axios.post(this.delurl,item).then(function (result) {
+                   //从页面中删除掉
+                    vue.subjectlist.splice(index,1);
+                }).catch(function(err){
+                    console.log(err)
+                    alert('删除数据出错')
+                });
+            },
+            edit:function(item){
+                this.subject=item
+            }
+
+        },
+        mounted:function () {
+            this.refresh();
+            console.log("inited1")
+        }
+    });
+</script>
+</body>
+</html>
